@@ -1,16 +1,71 @@
-# React + Vite
+## Datos del proyecto
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+- Nombre: Rendon Cocom Saul Alejandro
+- Matrícula: 24393121
+- Grupo: LITIId52
 
-Currently, two official plugins are available:
+## Descripción
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+Aplicación tipo Pokédex con login de entrenador, captura de Pokémon y almacenamiento en Supabase. Usa React + Vite, Tailwind para estilos, Mapbox para mostrar marcadores aleatorios y la PokéAPI para datos y sprites.
 
-## React Compiler
+## Características
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- Login: selección de avatar, generación de ID y persistencia de entrenador en localStorage.
+- Pokédex: encendido/apagado, búsqueda por nombre o ID, modo retro/arte oficial, probabilidad de shiny/legendario y captura con envío a Supabase.
+- Dashboard: mapa Mapbox con marcadores de sprites aleatorios y estadísticas de capturas (total, shinies, tipos únicos) por entrenador.
+- Pokebox: lista, búsqueda, renombrado y borrado de Pokémon guardados en Supabase, vista de tarjeta de entrenador con conteos.
+- Integraciones: Supabase (tabla `pokemons`), PokéAPI para datos, Mapbox para mapa, React Router para navegación.
 
-## Expanding the ESLint configuration
+## Rutas principales
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+- `/` login y selección de avatar.
+- `/dashboard` mapa y estadísticas del entrenador activo.
+- `/pokedex` búsqueda/captura y enciclopedia.
+- `/pokebox` gestión de Pokémon almacenados.
+
+## Stack y dependencias clave
+
+- React + Vite, React Router DOM.
+- Supabase (`@supabase/supabase-js`) para persistencia.
+- PokéAPI (fetch directo) para datos de Pokémon.
+- Mapbox GL para mapa temático.
+- Tailwind y estilos custom (gradientes, holográfico, retro sprites).
+
+## Puesta en marcha
+
+Requisitos: Node 18+ y npm.
+
+```bash
+npm install
+npm run dev
+```
+
+## Configuración de servicios
+
+### Supabase
+
+- Copia `.env.example` a `.env` y rellena `VITE_SUPABASE_URL` y `VITE_SUPABASE_ANON_KEY`.
+- El cliente lee las variables desde `import.meta.env` en `src/pages/client.js` (y la copia en `supabase/client copy.js`).
+- Tabla esperada: `pokemons` con columnas sugeridas:
+	- `id` bigint/serial (PK)
+	- `name` text
+	- `type` text (ej. "fire / flying")
+	- `image` text (url sprite)
+	- `trainer` text
+	- `rarity` text (normal|shiny|legendary|epic)
+	- `is_shiny` boolean
+	- `level` integer
+	- `created_at` timestamptz default now()
+
+### Mapbox
+
+- Define `VITE_MAPBOX_TOKEN` en `.env`. `src/pages/dashboard.jsx` y `my-map-app/src/App.jsx` lo leen desde `import.meta.env`.
+
+
+## Flujo de uso
+
+1) Ingresa nombre y avatar en el login (se guarda en localStorage).
+2) En Pokédex enciende el dispositivo, busca o genera aleatorios y captura; cada captura se envía a Supabase.
+3) Revisa estadísticas y marcadores en el dashboard.
+4) Gestiona tus capturas en Pokebox (buscar, renombrar, eliminar).
+
