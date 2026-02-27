@@ -1,0 +1,1355 @@
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+/* ===============================
+   1. VARIABLES & RESET
+================================ */
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+:root {
+  /* Paleta Game Boy (DMG-01) */
+  --gb-darkest: #0f380f;
+  --gb-dark:    #306230;
+  --gb-light:   #8bac0f;
+  --gb-lightest:#9bbc0f;
+  
+  /* Carcasa Física */
+  --case-bg:     #c4cfa1; /* El color crema clásico */
+  --case-shadow: #a0aa7c;
+  --case-border: #8b956d;
+  
+  /* Plástico Pantalla */
+  --bezel-color: #777c86; /* Gris oscuro del marco */
+  --bezel-line:  #4f4a66; /* Líneas azules/rojas decorativas */
+
+  /* Botones */
+  --btn-dpad:    #353535;
+  --btn-action:  #a91d3a; /* Rojo oscuro */
+  --btn-select:  #686666;
+  
+  /* UI/LED */
+  --led-red:     #ff0000;
+  --led-glow:    rgba(255, 0, 0, 0.6);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  margin: 0;
+  background: linear-gradient(135deg, #1a1a1a 0%, #2c2c2c 100%);
+  font-family: 'Press Start 2P', monospace;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 20px;
+}
+
+/* ===============================
+   2. CONTENEDOR PRINCIPAL (LA CONSOLA)
+================================ */
+.gameboy-container {
+  width: 440px; /* Ancho ampliado para pantalla más grande */
+  background: var(--case-bg);
+  padding: 30px 24px 44px 24px; /* Más espacio general */
+  border-radius: 12px 12px 65px 12px; /* Curva clásica abajo derecha más pronunciada */
+  box-shadow: 
+    inset 4px 4px 8px rgba(255,255,255,0.45), /* Brillo plástico más definido */
+    inset -4px -4px 8px rgba(0,0,0,0.15),
+    0 15px 30px rgba(0,0,0,0.65), /* Sombra más realista */
+    0 25px 40px rgba(0,0,0,0.5);
+  position: relative;
+  border: 3px solid var(--case-border);
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  overflow: hidden;
+}
+
+.gameboy-container:hover {
+  transform: translateY(-3px);
+  box-shadow: 
+    inset 4px 4px 8px rgba(255,255,255,0.45),
+    inset -4px -4px 8px rgba(0,0,0,0.15),
+    0 18px 35px rgba(0,0,0,0.7),
+    0 30px 45px rgba(0,0,0,0.55);
+}
+
+/* Estado Apagado (Clase condicional en JSX) */
+.gameboy-container.power-off .pokedex-screen {
+  background-color: #8da10d; /* Pantalla apagada */
+  box-shadow: inset 0 0 25px rgba(0,0,0,0.3);
+}
+
+.gameboy-container.power-off .screen-text,
+.gameboy-container.power-off .pokemon-sprite {
+  opacity: 0.15; /* Efecto fantasma LCD más realista */
+  filter: grayscale(100%) brightness(0.7);
+}
+
+.gameboy-container.power-off .power-led {
+  background-color: #442222;
+  box-shadow: none;
+  animation: none;
+}
+
+/* ===============================
+   3. DETALLES SUPERIORES
+================================ */
+.power-switch {
+  width: 42px;
+  height: 12px;
+  background: linear-gradient(to bottom, #e0e0e0 0%, #c0c0c0 100%);
+  position: absolute;
+  top: 15px; /* Posición corregida dentro del contenedor */
+  left: 28px;
+  border-radius: 6px 6px 0 0;
+  cursor: pointer;
+  border: 2px solid #888;
+  border-bottom: none;
+  transition: all 0.2s ease;
+  z-index: 30;
+  box-shadow: 
+    inset 0 -2px 3px rgba(0,0,0,0.2),
+    1px 1px 2px rgba(0,0,0,0.3);
+}
+
+.power-switch::before {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 3px;
+  width: 16px;
+  height: 6px;
+  background: var(--gb-darkest);
+  border-radius: 2px;
+  transition: transform 0.2s ease;
+}
+
+.power-switch.on {
+  background: linear-gradient(to bottom, #2e2e2e 0%, #1a1a1a 100%);
+  transform: translateY(-1px);
+  box-shadow: 
+    inset 0 -2px 3px rgba(0,0,0,0.3),
+    0 0 0 1px rgba(0,0,0,0.4);
+}
+
+.power-switch.on::before {
+  transform: translateX(20px);
+  background: var(--gb-light);
+}
+
+.top-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 40px; /* Altura ajustada para mejor espaciado */
+  padding: 0 15px;
+  position: relative;
+  z-index: 25;
+}
+
+/* LED de batería */
+.power-led {
+  width: 14px;
+  height: 14px;
+  background: var(--led-red);
+  border-radius: 50%;
+  box-shadow: 
+    0 0 8px var(--led-glow),
+    0 0 15px var(--led-glow),
+    0 0 25px var(--led-glow);
+  position: absolute;
+  top: 22px; /* Posición corregida - más arriba y visible */
+  left: 85px; /* Ajustado para estar alineado con el texto decorativo */
+  z-index: 30;
+  border: 2px solid rgba(0,0,0,0.25);
+  transition: all 0.3s ease;
+}
+
+.gameboy-container:not(.power-off) .power-led {
+  animation: pulse 3.5s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { 
+    opacity: 1; 
+    box-shadow: 
+      0 0 8px var(--led-glow),
+      0 0 15px var(--led-glow),
+      0 0 25px var(--led-glow);
+  }
+  50% { 
+    opacity: 0.85; 
+    box-shadow: 
+      0 0 12px var(--led-glow),
+      0 0 20px var(--led-glow),
+      0 0 30px var(--led-glow);
+  }
+}
+
+/* Rejilla de altavoz */
+.speaker-grill {
+  position: absolute;
+  bottom: 75px; /* Ajustado para no superponerse con los botones */
+  right: 30px;
+  width: 70px;
+  height: 70px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  transform: rotate(-22deg);
+  opacity: 0.45;
+  pointer-events: none; /* Solo decorativo */
+  z-index: 5;
+}
+
+.speaker-hole {
+  width: 5px;
+  height: 50px;
+  background: var(--gb-darkest);
+  border-radius: 2px;
+  box-shadow: inset 1px 1px 3px rgba(0,0,0,0.6);
+}
+
+/* ===============================
+   4. PANTALLA Y MARCO (BEZEL)
+================================ */
+.screen-section {
+  background: var(--bezel-color);
+  padding: 35px 30px 30px 30px; /* Más espacio arriba para el texto decorativo */
+  border-radius: 12px 12px 35px 12px;
+  margin: 15px 0 25px 0;
+  box-shadow: 
+    inset 3px 3px 8px rgba(0,0,0,0.4),
+    inset -3px -3px 8px rgba(255,255,255,0.15),
+    0 5px 15px rgba(0,0,0,0.3);
+  position: relative;
+  z-index: 20;
+}
+
+/* Texto decorativo en el marco */
+.screen-section::before {
+  content: "DOT MATRIX WITH STEREO SOUND";
+  position: absolute;
+  top: 12px;
+  left: 0;
+  right: 0;
+  text-align: center;
+  color: #c5c5c5;
+  font-size: 8px;
+  letter-spacing: 1.5px;
+  font-family: 'Arial Narrow', sans-serif;
+  font-weight: bold;
+  text-shadow: 0 1px 0 rgba(255,255,255,0.3);
+  z-index: 25;
+}
+
+/* Líneas decorativas roja y azul */
+.screen-section::after {
+  content: "";
+  position: absolute;
+  top: 24px;
+  left: 25px;
+  right: 25px;
+  height: 2px;
+  background: linear-gradient(90deg, #8b1d3a 35%, transparent 35%, transparent 65%, #293462 65%);
+  z-index: 25;
+}
+
+.pokedex-screen {
+  background-color: var(--gb-lightest);
+  height: 240px; /* Pantalla ampliada */
+  border: 4px solid #444;
+  border-radius: 4px;
+  box-shadow: 
+    inset 4px 4px 8px rgba(0,0,0,0.3),
+    inset -2px -2px 5px rgba(255,255,255,0.2);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 12px;
+  position: relative;
+  overflow: hidden;
+  z-index: 22;
+}
+
+/* Scanlines LCD */
+.pokedex-screen::before {
+  content: none;
+}
+
+/* Sprite del Pokémon */
+.pokemon-sprite {
+  width: 110px;
+  height: 110px;
+  align-self: center;
+  filter: contrast(1.3) sepia(0.8) hue-rotate(55deg) saturate(2.8);
+  margin-top: 8px;
+  z-index: 26;
+  position: relative;
+  image-rendering: pixelated;
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+
+/* Texto en pantalla */
+.screen-text {
+  font-size: 9px;
+  color: var(--gb-darkest);
+  line-height: 1.5;
+  z-index: 26;
+  text-transform: uppercase;
+  letter-spacing: -0.5px;
+  position: relative;
+  padding: 0 5px;
+}
+
+/* Mensajes de carga/error */
+.loading-indicator, .no-results, .error-screen {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 12px;
+  color: var(--gb-darkest);
+  text-align: center;
+  z-index: 27;
+  background: transparent;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.loading-indicator::after {
+  content: none;
+}
+
+.loading-dots {
+  position: relative;
+  width: 54px;
+  height: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 4px;
+}
+
+.loading-dots::before {
+  content: "";
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--gb-darkest);
+  box-shadow: 16px 0 0 var(--gb-darkest), 32px 0 0 var(--gb-darkest);
+  animation: dotsPulse 1.2s infinite ease-in-out;
+}
+
+@keyframes dotsPulse {
+  0%, 100% {
+    opacity: 0.45;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes blink {
+  0%, 20% { opacity: 0; }
+  40%, 100% { opacity: 1; }
+}
+
+.retry-btn {
+  margin-top: 12px;
+  background: none;
+  border: 2px solid var(--gb-darkest);
+  color: var(--gb-darkest);
+  font-family: inherit;
+  font-size: 8px;
+  padding: 4px 10px;
+  cursor: pointer;
+  transition: all 0.2s;
+  position: relative;
+  z-index: 27;
+}
+
+.retry-btn:hover {
+  background: var(--gb-light);
+  transform: scale(1.05);
+}
+
+/* ===============================
+   5. CONTROLES (D-PAD & BOTONES)
+================================ */
+.controls-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  padding: 0 25px 15px 25px; /* Más espacio abajo para el logo Nintendo */
+  position: relative;
+  z-index: 25;
+  margin-top: 5px;
+}
+
+/* --- D-PAD --- */
+.d-pad {
+  width: 95px;
+  height: 95px;
+  position: relative;
+  margin-left: 5px;
+}
+
+.d-pad-btn {
+  background: var(--btn-dpad);
+  position: absolute;
+  cursor: pointer;
+  box-shadow: 
+    3px 3px 0 #111, /* Profundidad más definida */
+    inset 2px 2px 4px rgba(255,255,255,0.25),
+    inset -2px -2px 4px rgba(0,0,0,0.3);
+  border: 1px solid #1a1a1a;
+  transition: all 0.1s ease;
+}
+
+.d-pad-btn:active {
+  transform: translate(1px, 1px);
+  box-shadow: 
+    1px 1px 0 #111,
+    inset 1px 1px 2px rgba(0,0,0,0.4);
+  background: #252525;
+}
+
+.d-pad-up { 
+  width: 32px; 
+  height: 32px; 
+  top: 0; 
+  left: 31px; 
+  border-radius: 5px 5px 0 0; 
+}
+.d-pad-down { 
+  width: 32px; 
+  height: 32px; 
+  bottom: 0; 
+  left: 31px; 
+  border-radius: 0 0 5px 5px; 
+}
+.d-pad-left { 
+  width: 32px; 
+  height: 32px; 
+  top: 31px; 
+  left: 0; 
+  border-radius: 5px 0 0 5px; 
+}
+.d-pad-right { 
+  width: 32px; 
+  height: 32px; 
+  top: 31px; 
+  right: 0; 
+  border-radius: 0 5px 5px 0; 
+}
+
+/* Centro del D-Pad (decorativo) */
+.d-pad::after {
+  content: '';
+  position: absolute;
+  top: 31px;
+  left: 31px;
+  width: 33px;
+  height: 33px;
+  background: #2a2a2a;
+  border-radius: 50%;
+  box-shadow: 
+    inset 3px 3px 5px rgba(0,0,0,0.6),
+    -1px -1px 2px rgba(255,255,255,0.2);
+  border: 1px solid #151515;
+  pointer-events: none;
+  z-index: 15;
+}
+
+/* --- ACTION BUTTONS (A/B) --- */
+.action-buttons {
+  display: flex;
+  gap: 18px;
+  transform: rotate(-12deg); /* Inclinación clásica ajustada */
+  margin-bottom: 8px;
+  margin-right: 5px;
+  position: relative;
+  z-index: 22;
+}
+
+.gb-button {
+  width: 45px;
+  height: 45px;
+  background: var(--btn-action);
+  border-radius: 50%;
+  color: transparent;
+  position: relative;
+  box-shadow: 
+    4px 4px 0 #5c1020,
+    inset -3px -3px 8px rgba(0,0,0,0.4),
+    inset 3px 3px 8px rgba(255,255,255,0.2);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  border: 2px solid #7a152a;
+}
+
+.gb-button:active {
+  transform: scale(0.92) translateY(2px);
+  box-shadow: 
+    1px 1px 0 #5c1020,
+    inset 2px 2px 6px rgba(0,0,0,0.5),
+    inset -2px -2px 6px rgba(255,255,255,0.3);
+}
+
+/* Etiquetas A y B en la carcasa */
+.gb-button::after {
+  content: attr(title);
+  position: absolute;
+  bottom: -28px;
+  right: -8px;
+  color: var(--gb-darkest);
+  font-size: 14px;
+  font-weight: bold;
+  transform: rotate(12deg); /* Contrarrestar rotación del padre */
+  pointer-events: none;
+  text-shadow: 1px 1px 0 var(--case-bg), -1px -1px 0 var(--case-bg);
+  letter-spacing: -1px;
+}
+
+.capture-btn.beep {
+  animation: flash 0.2s 3;
+}
+
+@keyframes flash {
+  0% { box-shadow: 0 0 0 0 rgba(255,255,255,0.8); }
+  50% { box-shadow: 0 0 0 8px rgba(255,255,255,0); }
+  100% { box-shadow: 0 0 0 0 rgba(255,255,255,0); }
+}
+
+/* ===============================
+   6. INTERFAZ DIGITAL EXTRA 
+   (Status bar, Info, Search)
+================================ */
+
+.status-bar {
+  background: var(--gb-light);
+  border: 2px solid var(--gb-dark);
+  padding: 4px 8px;
+  font-size: 8px;
+  display: flex;
+  justify-content: space-between;
+  margin: 0 15px 15px 15px;
+  color: var(--gb-darkest);
+  border-radius: 3px;
+  position: relative;
+  z-index: 24;
+  box-shadow: 
+    inset 1px 1px 2px rgba(255,255,255,0.4),
+    inset -1px -1px 2px rgba(0,0,0,0.2);
+}
+
+.battery {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.battery-fill {
+  width: 22px;
+  height: 9px;
+  background: var(--gb-darkest);
+  border: 1px solid var(--gb-darkest);
+  position: relative;
+  border-radius: 1px;
+  overflow: hidden;
+}
+
+.battery-fill::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 85%; /* Carga simulada */
+  height: 100%;
+  background: var(--gb-lightest);
+}
+
+.battery-fill::after {
+  content: '';
+  width: 3px;
+  height: 5px;
+  background: var(--gb-darkest);
+  position: absolute;
+  right: -5px;
+  top: 1px;
+  border-radius: 0 2px 2px 0;
+}
+
+.info-display {
+  background: rgba(240, 240, 220, 0.85);
+  padding: 10px;
+  border: 2px dashed var(--case-border);
+  margin: 0 15px 15px 15px;
+  font-size: 8px;
+  color: var(--gb-darkest);
+  border-radius: 5px;
+  position: relative;
+  z-index: 24;
+  box-shadow: 
+    inset 2px 2px 4px rgba(255,255,255,0.6),
+    inset -2px -2px 4px rgba(0,0,0,0.1);
+}
+
+.info-title {
+  border-bottom: 1px solid var(--gb-dark);
+  margin-bottom: 5px;
+  padding-bottom: 2px;
+  font-weight: bold;
+  letter-spacing: 1px;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 3px 5px;
+  margin-top: 4px;
+  font-weight: bold;
+}
+
+.type-badges {
+  display: flex;
+  gap: 4px;
+  margin: 4px 0;
+  flex-wrap: wrap;
+}
+
+.type-badge {
+  background: var(--gb-darkest);
+  color: var(--gb-lightest);
+  padding: 1px 4px;
+  border-radius: 2px;
+  font-size: 7px;
+  letter-spacing: 0.5px;
+}
+
+/* ===============================
+   7. BÚSQUEDA Y INPUTS
+================================ */
+.search-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 0 15px 10px 15px;
+  position: relative;
+  z-index: 24;
+}
+
+.search-input {
+  width: 100%;
+  background: var(--gb-light);
+  border: 2px solid var(--gb-darkest);
+  padding: 8px 10px;
+  font-family: inherit;
+  font-size: 10px;
+  color: var(--gb-darkest);
+  outline: none;
+  text-transform: uppercase;
+  border-radius: 3px;
+  letter-spacing: 1px;
+  transition: all 0.2s;
+}
+
+.search-input:focus {
+  border-color: var(--gb-dark);
+  box-shadow: 0 0 0 2px var(--gb-lightest);
+}
+
+.search-input::placeholder {
+  color: var(--gb-dark);
+  opacity: 0.8;
+  letter-spacing: 0;
+}
+
+.quick-access {
+  display: flex;
+  gap: 3px;
+  justify-content: center;
+  margin-top: -3px;
+}
+
+.quick-btn {
+  width: 24px;
+  height: 20px;
+  background: var(--gb-dark);
+  color: var(--gb-lightest);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 9px;
+  cursor: pointer;
+  border: 1px solid var(--gb-darkest);
+  border-radius: 3px;
+  transition: all 0.15s;
+  font-weight: bold;
+  letter-spacing: -0.5px;
+}
+
+.quick-btn:hover {
+  background: var(--gb-darkest);
+  transform: translateY(-1px);
+  box-shadow: inset 0 1px 2px rgba(255,255,255,0.3);
+}
+
+.quick-btn:active {
+  transform: translateY(1px);
+  box-shadow: inset 0 -1px 2px rgba(0,0,0,0.3);
+}
+
+/* ===============================
+   8. UTILIDADES Y DETALLES FINALES
+================================ */
+.nintendo-logo {
+  font-family: 'Arial Black', sans-serif;
+  font-weight: 900;
+  font-style: italic;
+  color: #383890; /* Azul oscuro logo */
+  border: 2px solid #222;
+  border-radius: 8px;
+  padding: 1px 7px;
+  font-size: 11px;
+  position: absolute;
+  bottom: 22px; /* Posición corregida - visible y bien ubicado */
+  left: 28px;
+  box-shadow: 
+    inset 1px 1px 2px rgba(255,255,255,0.6),
+    inset -1px -1px 2px rgba(0,0,0,0.3),
+    1px 2px 3px rgba(0,0,0,0.4);
+  background: linear-gradient(to bottom, #e8e8f0 0%, #d0d0e0 100%);
+  letter-spacing: 1px;
+  z-index: 28;
+  text-shadow: 1px 1px 0 rgba(255,255,255,0.7);
+}
+
+/* Mensaje Toast del Sistema */
+.system-message {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: var(--gb-lightest);
+  border: 4px double var(--gb-darkest);
+  padding: 12px;
+  z-index: 100;
+  text-align: center;
+  font-size: 11px;
+  box-shadow: 
+    0 0 0 100vmax rgba(0,0,0,0.85),
+    0 5px 25px rgba(0,0,0,0.7);
+  border-radius: 8px;
+  max-width: 85%;
+  animation: pop-in 0.3s ease-out;
+}
+
+@keyframes pop-in {
+  0% { transform: translate(-50%, -50%) scale(0.8); opacity: 0; }
+  70% { transform: translate(-50%, -50%) scale(1.05); }
+  100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+}
+
+.sound-wave {
+  width: 100px;
+  height: 100px;
+  border: 2px solid var(--gb-lightest);
+  border-radius: 50%;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0);
+  z-index: 99;
+  opacity: 0.8;
+}
+
+@keyframes ripple {
+  0% { transform: translate(-50%, -50%) scale(0); opacity: 0.8; }
+  100% { transform: translate(-50%, -50%) scale(1.8); opacity: 0; }
+}
+
+/* Botón Secreto */
+.secret-button {
+  width: 25px;
+  height: 25px;
+  position: absolute;
+  bottom: 25px;
+  right: 25px;
+  cursor: help;
+  background: radial-gradient(circle, var(--case-bg) 60%, var(--case-border) 61%, transparent 65%);
+  border-radius: 50%;
+  z-index: 35;
+  border: 1px dashed rgba(0,0,0,0.3);
+  opacity: 0.7;
+  transition: opacity 0.3s;
+}
+
+.secret-button:hover {
+  opacity: 1;
+  box-shadow: 0 0 5px rgba(0,0,0,0.5);
+}
+
+/* Scrollbar personalizada */
+::-webkit-scrollbar { 
+  width: 8px; 
+  height: 8px;
+}
+::-webkit-scrollbar-track { 
+  background: var(--gb-light); 
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb { 
+  background: var(--gb-darkest); 
+  border-radius: 4px;
+  border: 2px solid var(--gb-light);
+}
+::-webkit-scrollbar-thumb:hover { 
+  background: var(--gb-dark); 
+}
+
+/* Animación de carga inicial */
+@keyframes power-on {
+  0% { opacity: 0; transform: scale(0.95); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+.gameboy-container {
+  animation: power-on 0.6s ease-out forwards;
+  animation-delay: 0.2s;
+}
+
+/* Efecto de brillo en la pantalla cuando está encendida */
+.gameboy-container:not(.power-off) .pokedex-screen {
+  animation: screen-glow 8s infinite alternate;
+}
+
+@keyframes screen-glow {
+  0%, 100% { box-shadow: inset 4px 4px 8px rgba(0,0,0,0.3), inset -2px -2px 5px rgba(255,255,255,0.2); }
+  50% { box-shadow: inset 4px 4px 12px rgba(0,0,0,0.4), inset -2px -2px 8px rgba(255,255,255,0.35); }
+}
+
+/* Variables Retro */
+:root {
+  --gb-screen-bg: #9bbc0f;     /* Verde Game Boy clásico */
+  --gb-screen-dark: #0f380f;   /* Verde muy oscuro (casi negro) */
+  --gb-body: #c0c0c0;          /* Gris carcasa */
+  --font-retro: 'Courier New', Courier, monospace; /* Monospaced es vital para alineación */
+}
+
+.pokedex-container {
+  display: flex;
+  gap: 2rem;
+  padding: 2rem;
+  background-color: #2c2c2c; /* Fondo oscuro para resaltar la consola */
+  min-height: 100vh;
+  justify-content: center;
+  align-items: center;
+  font-family: var(--font-retro);
+}
+
+/* --- COLUMNA IZQUIERDA (PANTALLA) --- */
+.screen-bezel {
+  background-color: #555;
+  padding: 20px 20px 40px 20px;
+  border-radius: 10px 10px 40px 10px;
+  box-shadow: inset -5px -5px 10px rgba(0,0,0,0.5);
+  width: 400px; /* Ancho fijo para mantener formato */
+}
+
+.lcd-display {
+  background-color: var(--gb-screen-bg);
+  color: var(--gb-screen-dark);
+  padding: 15px;
+  border: 4px solid #444;
+  box-shadow: inset 3px 3px 5px rgba(0,0,0,0.2);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: bold;
+  text-transform: uppercase;
+  /* Efecto de líneas de scan sutil */
+  background-image: linear-gradient(rgba(15, 56, 15, 0.05) 1px, transparent 1px);
+  background-size: 100% 3px;
+  min-height: 200px;
+}
+
+.lcd-box {
+  margin-top: 12px;
+  min-height: 140px;
+  background: radial-gradient(circle at 30% 20%, #e1e7ef 0%, #cfd8e3 45%, #b9c5d6 100%);
+}
+
+/* Utilidades de la pantalla */
+.lcd-row { display: flex; justify-content: space-between; width: 100%; }
+.lcd-divider { border-bottom: 2px dashed var(--gb-screen-dark); margin: 5px 0; opacity: 0.5; }
+
+.rarity-screen {
+  position: relative;
+  overflow: hidden;
+}
+
+.rarity-screen > *:not(.rarity-overlay) {
+  position: relative;
+  z-index: 2;
+}
+
+.rarity-overlay {
+  position: absolute;
+  inset: -10px;
+  pointer-events: none;
+  mix-blend-mode: screen;
+  z-index: 1;
+}
+
+.rarity-layer {
+  position: absolute;
+  inset: 0;
+}
+
+.rarity-overlay.shiny-rng .sparkles {
+  background:
+    radial-gradient(circle at 20% 30%, rgba(255, 255, 255, 0.8) 0 6%, transparent 12%),
+    radial-gradient(circle at 70% 40%, rgba(255, 242, 158, 0.7) 0 5%, transparent 11%),
+    radial-gradient(circle at 40% 75%, rgba(255, 255, 255, 0.9) 0 7%, transparent 13%),
+    radial-gradient(circle at 85% 65%, rgba(255, 215, 0, 0.6) 0 4%, transparent 10%);
+  background-size: 120px 120px;
+  opacity: 0.6;
+  animation: sparkleDrift 6s linear infinite, sparklePulse 3s ease-in-out infinite;
+}
+
+.rarity-overlay.legendary-rng .beams,
+.rarity-overlay.epic-legendary .beams {
+  background: conic-gradient(from 0deg, rgba(255, 239, 213, 0.3), rgba(255, 193, 93, 0.5), rgba(255, 75, 43, 0.4), rgba(255, 239, 213, 0.3));
+  opacity: 0.45;
+  filter: blur(1px);
+  animation: beamSpin 12s linear infinite;
+}
+
+.rarity-overlay.epic-legendary .epic-core {
+  background: radial-gradient(circle at center, rgba(255, 211, 77, 0.55) 0%, rgba(255, 99, 71, 0.5) 30%, rgba(255, 99, 71, 0) 65%);
+  filter: blur(6px);
+  opacity: 0.8;
+  animation: epicPulse 1.8s ease-in-out infinite;
+}
+
+.rarity-overlay.epic-legendary .sparkles {
+  opacity: 0.85;
+  animation-duration: 5s, 2.4s;
+}
+
+.rarity-overlay.epic-legendary .beams {
+  opacity: 0.7;
+  animation-duration: 9s;
+}
+
+.legendary-overlay {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  z-index: 999;
+  pointer-events: none;
+  animation: overlayFade 0.3s ease forwards;
+}
+
+.legendary-overlay .legendary-backdrop {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 50% 50%, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.9) 65%);
+  backdrop-filter: blur(6px);
+}
+
+.legendary-overlay .legendary-content {
+  position: relative;
+  text-align: center;
+  color: #fff;
+  padding: 24px;
+  border-radius: 16px;
+  background: rgba(255,255,255,0.04);
+  border: 2px solid rgba(255,255,255,0.15);
+  box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+  animation: overlayPop 0.45s ease forwards;
+}
+
+.legendary-overlay .legendary-title {
+  font-size: 18px;
+  letter-spacing: 2px;
+  margin-bottom: 14px;
+  text-transform: uppercase;
+}
+
+.legendary-overlay.legendary .legendary-title { color: #60a5fa; }
+.legendary-overlay.shiny .legendary-title { color: #facc15; }
+.legendary-overlay.epic .legendary-title { color: #f97316; text-shadow: 0 0 12px rgba(249,115,22,0.6); }
+
+.legendary-overlay .legendary-sprite {
+  width: min(38vw, 320px);
+  height: auto;
+  filter: drop-shadow(0 18px 35px rgba(0,0,0,0.7));
+  animation: spritePulse 1.4s ease-in-out infinite;
+}
+
+.name-tag { display: inline-flex; align-items: center; gap: 8px; }
+.name-tag .name-pill {
+  margin-left: 6px;
+  padding: 4px 8px;
+  border-radius: 10px;
+  font-size: 10px;
+  background: #facc15;
+  color: #111;
+  font-weight: 800;
+}
+.name-legendary { color: #60a5fa; }
+.name-shiny { color: #facc15; }
+.name-epic {
+  background: linear-gradient(90deg, #f97316, #facc15, #60a5fa);
+  -webkit-background-clip: text;
+  color: transparent;
+}
+
+@keyframes overlayFade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes overlayPop {
+  0% { transform: scale(0.9); opacity: 0; }
+  60% { transform: scale(1.04); opacity: 1; }
+  100% { transform: scale(1); }
+}
+
+@keyframes spritePulse {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+@keyframes sparkleDrift {
+  0% { transform: translate3d(0, 0, 0) scale(1); }
+  50% { transform: translate3d(6px, -6px, 0) scale(1.05); }
+  100% { transform: translate3d(-4px, 4px, 0) scale(1); }
+}
+
+@keyframes sparklePulse {
+  0%, 100% { opacity: 0.45; }
+  50% { opacity: 0.95; }
+}
+
+@keyframes beamSpin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes epicPulse {
+  0% { transform: scale(0.9); opacity: 0.6; }
+  50% { transform: scale(1.08); opacity: 0.95; }
+  100% { transform: scale(0.92); opacity: 0.7; }
+}
+
+.pixel-art-img {
+  width: 180px;
+  height: 180px;
+  display: block;
+  margin: 0 auto;
+  object-fit: contain;
+  background: none;
+  border: none;
+  image-rendering: auto;
+  filter: drop-shadow(0 12px 24px rgba(0, 0, 0, 0.35));
+  transition: transform 0.6s ease, filter 0.6s ease;
+}
+
+.pixel-art-img:hover {
+  transform: translateY(-4px) scale(1.03);
+  filter: drop-shadow(0 16px 32px rgba(0, 0, 0, 0.4));
+}
+
+/* Alineación de Stats con puntos */
+.stat-line {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+.stat-label { flex-shrink: 0; }
+.stat-value { flex-shrink: 0; }
+.stat-dots {
+  flex-grow: 1;
+  border-bottom: 2px dotted var(--gb-screen-dark);
+  margin: 0 4px 4px 4px; /* Ajuste visual para alinear los puntos con el texto */
+}
+
+.box-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 12px;
+  padding: 6px 4px;
+}
+
+.box-row {
+  display: flex;
+  justify-content: space-between;
+  background: rgba(0,0,0,0.06);
+  padding: 6px 8px;
+  border-radius: 6px;
+  border: 1px solid rgba(0,0,0,0.1);
+}
+
+.box-name {
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.box-type {
+  font-weight: 600;
+}
+
+/* === POKEBOX GRID === */
+.pokebox-grid-wrapper {
+  background: linear-gradient(135deg, #fef2f2 0%, #ffffff 45%, #fde68a 100%);
+  border: 4px solid #111;
+  border-radius: 16px;
+  padding: 16px;
+  box-shadow: 0 14px 30px rgba(0,0,0,0.28);
+  color: #111;
+  font-size: 13px;
+}
+
+.pokebox-header {
+  display: flex;
+  justify-content: space-between;
+  font-weight: 800;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+  color: #111;
+  font-size: 12px;
+}
+
+.pokebox-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 12px;
+}
+
+.pokebox-card {
+  background: linear-gradient(to bottom, #ffffff 0%, #f1f5f9 100%);
+  border: 2px solid #111;
+  border-radius: 12px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  box-shadow: 0 8px 0 #111;
+  color: #111;
+  font-size: 12px;
+}
+
+.pokebox-thumb {
+  width: 100%;
+  aspect-ratio: 1;
+  background: #fef2f2;
+  border: 3px solid #111;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+}
+
+.pokebox-thumb img {
+  width: 90%;
+  height: 90%;
+  object-fit: contain;
+  image-rendering: pixelated;
+}
+
+.pokebox-name {
+  font-weight: 800;
+  text-transform: uppercase;
+  text-align: center;
+  font-size: 13px;
+  color: #111;
+}
+
+.pokebox-delete {
+  width: 100%;
+  padding: 8px;
+  background: #fef2f2;
+  color: #111;
+  border: 2px solid #b91c1c;
+  font-weight: 800;
+  cursor: pointer;
+  text-transform: uppercase;
+  border-radius: 8px;
+  box-shadow: 0 3px 0 #111;
+}
+
+.pokebox-delete:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.pokebox-rename {
+  width: 100%;
+  padding: 8px;
+  background: #ffffff;
+  color: #111;
+  border: 2px solid #111;
+  font-weight: 800;
+  text-transform: uppercase;
+  cursor: pointer;
+  border-radius: 8px;
+  box-shadow: 0 3px 0 #111;
+}
+
+.pokebox-rename:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.pokebox-empty {
+  grid-column: 1 / -1;
+  text-align: center;
+  font-weight: 700;
+  padding: 12px;
+  color: #111;
+}
+
+.pokebox-page {
+  min-height: 100vh;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  background: radial-gradient(circle at 20% 20%, #fef3c7, #f9fafb 45%, #e5e7eb 100%);
+}
+
+.pokebox-page-bar {
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.pokebox-nav {
+  padding: 10px 14px;
+  background: #111;
+  color: #fff;
+  border: 2px solid #333;
+  font-weight: 800;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.pokebox-trainer-input {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.pokebox-trainer-input input {
+  padding: 8px;
+  border: 2px solid #333;
+  text-transform: uppercase;
+}
+
+/* --- COLUMNA DERECHA (CONTROLES) --- */
+.controls-panel {
+  width: 300px;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  background: #dcdcdc;
+  padding: 20px;
+  border-radius: 15px;
+  border: 4px solid #999;
+}
+
+/* ... (Tus estilos anteriores) ... */
+
+/* Botón de Atrapar estilo Pokéball */
+.btn-catch {
+  background: linear-gradient(to bottom, #e60012 50%, #f7f7f7 50%);
+  color: #111;
+  border: 3px solid #111;
+  font-weight: 800;
+  font-size: 15px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  padding: 12px;
+  border-radius: 999px; /* Redondo */
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  isolation: isolate;
+  box-shadow: 0 6px 0 #111;
+  transition: transform 0.1s, box-shadow 0.1s, filter 0.2s;
+  text-shadow: 0 1px 1px rgba(255,255,255,0.7);
+  z-index: 0;
+}
+
+.btn-catch:active {
+  transform: translateY(4px);
+  box-shadow: 0 2px 0 #111;
+}
+
+.btn-catch:disabled {
+  filter: grayscale(100%);
+  cursor: not-allowed;
+}
+
+.btn-catch::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 12px;
+  background: #111;
+  transform: translateY(-50%);
+  z-index: 0;
+}
+
+.btn-catch::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #fff;
+  border: 3px solid #111;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 0 0 3px #f7f7f7;
+  z-index: 0;
+  opacity: 0.6;
+}
+
+/* Indicador de Nivel en controles */
+.level-indicator {
+  font-size: 12px;
+  color: #555;
+  text-align: right;
+  margin-bottom: 2px;
+}

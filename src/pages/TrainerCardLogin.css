@@ -1,0 +1,549 @@
+@import "tailwindcss";
+
+/* Fuentes personalizadas */
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+/* Animaciones clave */
+@keyframes borderRotate {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes lightMove {
+  0%, 100% { opacity: 0.1; transform: translateX(-100%); }
+  50% { opacity: 0.3; transform: translateX(100%); }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-20px) rotate(10deg); }
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.05); opacity: 0.8; }
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Estilos principales */
+.trainer-card {
+  display: flex;
+  flex-direction: column;
+  width: 480px;
+  min-height: 220px;
+  background: linear-gradient(145deg, #f8f8d8 0%, #e8e8b8 100%);
+  border: 6px solid #202020;
+  border-radius: 12px;
+  padding: 15px;
+  font-family: "Press Start 2P", monospace, sans-serif;
+  box-shadow: 
+    8px 8px 0 #000,
+    12px 12px 20px rgba(0, 0, 0, 0.5),
+    inset 0 0 30px rgba(255, 255, 255, 0.3);
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.trainer-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 
+    10px 10px 0 #000,
+    15px 15px 25px rgba(0, 0, 0, 0.7),
+    inset 0 0 40px rgba(255, 255, 255, 0.4);
+}
+
+/* Efectos de partículas */
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+  opacity: 0.6;
+}
+
+/* HEADER */
+.trainer-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 15px;
+  margin-bottom: 10px;
+  border-bottom: 4px solid #202020;
+  position: relative;
+}
+
+.trainer-title-container {
+  position: relative;
+}
+
+.trainer-title-glow {
+  position: absolute;
+  top: -5px;
+  left: -5px;
+  right: -5px;
+  bottom: -5px;
+  background: linear-gradient(90deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #9400d3);
+  opacity: 0.3;
+  border-radius: 50%;
+  filter: blur(10px);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.trainer-title {
+  font-size: 18px;
+  font-weight: bold;
+  letter-spacing: 2px;
+  text-shadow: 3px 3px 0 #000, 4px 4px 0 rgba(0, 0, 0, 0.5);
+  position: relative;
+  z-index: 1;
+  animation: pulse 3s ease-in-out infinite;
+}
+
+.text-gradient {
+  background: linear-gradient(90deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #9400d3);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  display: inline-block;
+  animation: borderRotate 5s linear infinite;
+}
+
+.trainer-id-badge {
+  background: linear-gradient(90deg, #ff0000, #cc0000);
+  color: white;
+  padding: 6px 15px;
+  border: 3px solid #202020;
+  border-radius: 20px;
+  font-size: 10px;
+  font-weight: bold;
+  box-shadow: 3px 3px 0 #800000;
+  position: relative;
+  overflow: hidden;
+}
+
+.trainer-id-badge::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  transform: rotate(45deg);
+  animation: lightMove 2s ease-in-out infinite;
+}
+
+/* BODY */
+.trainer-body {
+  display: flex;
+  gap: 15px;
+  padding: 0 10px;
+}
+
+/* AVATAR */
+.trainer-avatar-container {
+  width: 140px;
+  background: linear-gradient(145deg, #d8d8a8 0%, #c8c898 100%);
+  border: 4px inset #202020;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 10px;
+  position: relative;
+  box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.2);
+}
+
+.trainer-avatar-frame {
+  position: relative;
+  width: 110px;
+  height: 110px;
+  background: #f0f0f0;
+  border: 3px solid #202020;
+  border-radius: 4px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 10px;
+  overflow: hidden;
+}
+
+.trainer-avatar-glow {
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.8) 0%, transparent 70%);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.trainer-avatar-img {
+  width: 100px;
+  height: 100px;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  object-fit: contain;
+  position: relative;
+  z-index: 1;
+}
+
+.trainer-avatar-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 5px;
+}
+
+.trainer-avatar-btn {
+  width: 28px;
+  height: 28px;
+  background: linear-gradient(145deg, #f0f0f0 0%, #d0d0d0 100%);
+  border: 2px solid #202020;
+  border-radius: 4px;
+  font-family: inherit;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.trainer-avatar-btn:hover {
+  background: linear-gradient(145deg, #e0e0e0 0%, #c0c0c0 100%);
+  transform: scale(1.1);
+  box-shadow: 2px 2px 0 #202020;
+}
+
+.trainer-avatar-btn:active {
+  transform: scale(0.95);
+  box-shadow: inset 2px 2px 0 #202020;
+}
+
+.trainer-avatar-counter {
+  font-size: 10px;
+  font-weight: bold;
+  color: #202020;
+  min-width: 40px;
+  text-align: center;
+}
+
+.trainer-avatar-label {
+  font-size: 8px;
+  color: #505050;
+  letter-spacing: 1px;
+  text-align: center;
+}
+
+/* INFO PANEL */
+.trainer-info-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.trainer-info-section {
+  background: white;
+  border: 2px solid #202020;
+  border-radius: 4px;
+  padding: 8px;
+}
+
+.trainer-info-label {
+  font-size: 8px;
+  font-weight: bold;
+  color: #202020;
+  letter-spacing: 1px;
+  margin-bottom: 4px;
+  text-transform: uppercase;
+}
+
+.trainer-input {
+  width: 100%;
+  padding: 6px 8px;
+  font-family: "Press Start 2P", monospace;
+  font-size: 12px;
+  border: 2px solid #202020;
+  background: linear-gradient(145deg, #ffffff 0%, #f0f0f0 100%);
+  border-radius: 4px;
+  box-sizing: border-box;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  transition: all 0.2s ease;
+}
+
+.trainer-input:focus {
+  outline: none;
+  border-color: #ff0000;
+  box-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
+  background: linear-gradient(145deg, #fff5f5 0%, #ffe0e0 100%);
+}
+
+.trainer-input::placeholder {
+  color: #a0a0a0;
+  opacity: 1;
+}
+
+.trainer-input.shake {
+  animation: shake 0.5s ease-in-out;
+}
+
+/* STATS */
+.trainer-stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.trainer-stat-box {
+  background: white;
+  border: 2px solid #202020;
+  border-radius: 4px;
+  padding: 8px;
+}
+
+.trainer-stat-label {
+  font-size: 8px;
+  font-weight: bold;
+  color: #202020;
+  letter-spacing: 1px;
+  margin-bottom: 2px;
+  text-transform: uppercase;
+}
+
+.trainer-stat-value {
+  font-size: 14px;
+  font-weight: bold;
+  letter-spacing: 1px;
+}
+
+.trainer-stats-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+}
+
+.trainer-stat-item {
+  background: white;
+  border: 2px solid;
+  border-radius: 4px;
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: 8px;
+  font-weight: bold;
+  text-align: center;
+  transition: all 0.2s ease;
+}
+
+.trainer-stat-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.trainer-stat-icon {
+  font-size: 14px;
+  margin-bottom: 2px;
+  display: block;
+}
+
+.trainer-stat-text {
+  font-size: 7px;
+  letter-spacing: 0.5px;
+}
+
+/* POKEMON SLOTS */
+.trainer-pokemon-slots {
+  display: flex;
+  gap: 8px;
+  margin-top: 5px;
+}
+
+.trainer-pokemon-slot {
+  width: 40px;
+  height: 40px;
+  border: 3px solid;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(135deg, rgba(255, 0, 0, 0.1), rgba(0, 0, 255, 0.1));
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.trainer-pokemon-slot::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  transform: rotate(45deg);
+  animation: lightMove 3s ease-in-out infinite;
+}
+
+.trainer-pokemon-slot:hover {
+  transform: scale(1.1);
+  box-shadow: 0 0 15px rgba(255, 255, 255, 0.5);
+}
+
+.trainer-pokemon-placeholder {
+  font-size: 20px;
+  font-weight: bold;
+  color: #202020;
+  text-shadow: 1px 1px 0 rgba(255, 255, 255, 0.5);
+}
+
+/* START BUTTON */
+.trainer-start-btn {
+  width: 100%;
+  padding: 10px;
+  font-family: "Press Start 2P", monospace;
+  font-size: 10px;
+  font-weight: bold;
+  color: white;
+  border: 4px solid #202020;
+  border-radius: 8px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  box-shadow: 4px 4px 0 #000;
+}
+
+.trainer-start-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  transform: translateX(-100%);
+  transition: transform 0.5s ease;
+}
+
+.trainer-start-btn:hover::before {
+  transform: translateX(100%);
+}
+
+.trainer-start-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 6px 6px 0 #000;
+}
+
+.trainer-start-btn:active {
+  transform: translateY(2px);
+  box-shadow: 2px 2px 0 #000;
+}
+
+.trainer-start-btn.loading {
+  cursor: wait;
+  animation: pulse 1s ease-in-out infinite;
+}
+
+.loading-spinner {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+.btn-text {
+  position: relative;
+  z-index: 1;
+}
+
+/* FOOTER */
+.trainer-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 15px;
+  margin-top: 10px;
+  border-top: 3px solid #202020;
+  font-size: 8px;
+  color: #505050;
+  letter-spacing: 1px;
+}
+
+.trainer-footer-left {
+  font-weight: bold;
+  color: #ff0000;
+}
+
+.trainer-footer-right {
+  opacity: 0.8;
+}
+
+/* DECORATIVE CIRCLES */
+.trainer-decorative-circles {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  display: flex;
+  gap: 5px;
+  pointer-events: none;
+}
+
+.trainer-circle {
+  width: 8px;
+  height: 8px;
+  border: 2px solid;
+  border-radius: 50%;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.trainer-circle:nth-child(1) { animation-delay: 0s; }
+.trainer-circle:nth-child(2) { animation-delay: 0.2s; }
+.trainer-circle:nth-child(3) { animation-delay: 0.4s; }
+.trainer-circle:nth-child(4) { animation-delay: 0.6s; }
+
+/* Responsive */
+@media (max-width: 520px) {
+  .trainer-card {
+    width: 95%;
+    min-height: 240px;
+  }
+  
+  .trainer-body {
+    flex-direction: column;
+  }
+  
+  .trainer-avatar-container {
+    width: 100%;
+  }
+  
+  .trainer-stats-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Print styles */
+@media print {
+  .trainer-card {
+    box-shadow: none;
+    border: 2px solid #000;
+  }
+}
